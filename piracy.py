@@ -97,6 +97,5 @@ with open('movie_data.txt', 'r+') as f:
             movie_list.append(format_movies(movie['name']))
             movie_download()
 
-
 # Maybe: and len(format_movies(movie['name'])) > 2
 # Is not needed anymore.
