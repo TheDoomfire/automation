@@ -24,15 +24,17 @@ def format_movies_for_download(movie_name):
     if any(serie in movie_name.lower() for serie in series):
         file_name, all_trash = re.split("s\d\de\d\d", movie_name.lower(), maxsplit=1)
         if "s01" in movie_name.lower():
-            season = "first-season"
+            season = "-first-season"
         if "s02" in movie_name.lower():
-            season = "second-season"
+            season = "-second-season"
         if "s03" in movie_name.lower():
-            season = "third-season"
+            season = "-third-season"
     else:
         file_name, all_trash = re.split("19\d\d|20\d\d|\(", movie_name, maxsplit=1)
         season = ""
-    file_name = file_name.replace(".", "-")
+    file_name = file_name.replace(".", " ")
+    file_name = file_name.strip()
+    file_name = file_name.replace(" ", "-")
     file_name = file_name.replace(":", "")
     file_name = file_name.replace("{", "")
     file_name = file_name.replace("}", "")
@@ -62,7 +64,7 @@ def remove_extention(movie_name):
 #Not Done.
 def download_movie_subtitle(movie_name):
     url = requests.get("https://www.subscene.com/subtitles/" + format_movies_for_download(movie_name) + "/english", headers=headers)
-    print(url)
+    print(format_movies_for_download(movie_name))
     soup = BeautifulSoup(url.content, features="lxml")
     #find_link = soup.find_all("a", "span"=re.compile(remove_extention(movie_name)))
     a_tags = soup.find("span", string="Who.Is.America.S01E02")
