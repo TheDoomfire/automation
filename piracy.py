@@ -84,7 +84,7 @@ def trusted_user():
    return(is_trusted)
 
 
-blocked_list = ["cam","hqcam", "hdcam", "hdts", "hindi", "aac", "720"]
+blocked_list = ["cam","hqcam", "hdcam", "hdts", "hindi", "aac", "720", "telesync"]
 movie_list = [  ]
 url_movies = "https://apibay.org/precompiled/data_top100_207.json"
 json_data = requests.get(url_movies).json()
