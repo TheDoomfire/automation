@@ -18,3 +18,15 @@ for a_link in tbody > tr > td > a:
 a_link(find_all(span)[1])
 
 check every <a> tag has a <span>[1] that contains myString. then prints the href
+
+## BIG TODO
+
+1. Sort all files.
+
+
+Downloader:
+1. Check if a movie is on https://subscene.com/browse/popular/film/1
+1. Check IMDB rating, eng/swe language etc.
+1. Download on TPB
+1. When download finished, move and sort.
+1. Run Subtitle downloader.
