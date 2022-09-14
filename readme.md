@@ -26,14 +26,12 @@ check every <a> tag has a <span>[1] that contains myString. then prints the href
 
 ### TODO
 
-
 **Downloader:**
 1. Check if a movie is on https://subscene.com/browse/popular/film/1
 1. Check IMDB rating, eng/swe language etc.
 1. Download on TPB or other.
 1. When download finished, move and sort. run clearCompletedTorrents()
 1. Run Subtitle downloader.
-
 
 **Sorter/renamer:**
 1. Check if serie
