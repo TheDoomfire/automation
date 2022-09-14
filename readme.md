@@ -34,4 +34,4 @@ Downloader:
 1. When download finished, move and sort.
 1. Run Subtitle downloader.
 
-Sorter:
+Sorter/renamer:
