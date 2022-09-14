@@ -17,7 +17,7 @@ def checkIfProcessRunning(processName):
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
-    return False;
+    return False
 
 def movie_download():
    if checkIfProcessRunning("qbittorrent.exe") == False:

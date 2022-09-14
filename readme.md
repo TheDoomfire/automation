@@ -1,5 +1,10 @@
+# Automate all PC stuff
 
+## Install All Modules
 
+1. pip install -r requirements.txt
+
+If you going to work on this project.
 
 ## Subtitles
 
@@ -18,3 +23,8 @@ for a_link in tbody > tr > td > a:
 a_link(find_all(span)[1])
 
 check every <a> tag has a <span>[1] that contains myString. then prints the href
+
+
+### TODO
+
+Remove qBittorrents when completed.
