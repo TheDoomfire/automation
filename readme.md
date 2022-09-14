@@ -27,11 +27,26 @@ check every <a> tag has a <span>[1] that contains myString. then prints the href
 ### TODO
 
 
-Downloader:
+**Downloader:**
 1. Check if a movie is on https://subscene.com/browse/popular/film/1
 1. Check IMDB rating, eng/swe language etc.
-1. Download on TPB
-1. When download finished, move and sort.
+1. Download on TPB or other.
+1. When download finished, move and sort. run clearCompletedTorrents()
 1. Run Subtitle downloader.
 
-Sorter/renamer:
+
+**Sorter/renamer:**
+1. Check if serie
+1. Fix regex for serie.
+1. Look inside folder and see if it contains a serie. DONT look inside temp folder.
+1. If no .srt, download and place it in the same folder.
+1. Format the serie name.
+1. Change .srt to same name as serie.
+1. Check if a serieName folder exist.
+1. Move it.
+1. Or create the correct season folder.
+1. Move it to the correct folder.
+1. Save the serie + episode to a database??? For auto-downloading new episodes??
+
+If file make a folder and place both the serieFile + srt.
+If no srt avaiable for download, make one with moviePy ????
