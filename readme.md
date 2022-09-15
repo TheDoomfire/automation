@@ -24,6 +24,10 @@ a_link(find_all(span)[1])
 
 check every <a> tag has a <span>[1] that contains myString. then prints the href
 
+### Resources
+
+Test regex: https://pythex.org/
+
 ### TODO
 
 **Downloader:**
