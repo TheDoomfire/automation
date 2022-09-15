@@ -57,8 +57,12 @@ def series():
                     print(formatName(serieSplit[0]))
                     makeDir(series_path)
                     makeDir(series_path + "\\" + formatName(serieSplit[0]))
-                    tempvar = re.search("((s|S)+[0-9]{2})", i)
-                    print(tempvar[0])
+                    tempvar = re.search("((s|S)+[0-9]{2})", i)[0]
+                    tempvar = tempvar.replace("s", "")
+                    tempvar = tempvar.replace("S", "")
+                    if tempvar[0] == "0":
+                        tempvar = tempvar[1:]
+                    print(tempvar)
 
 
 def sorterThis(ext, pattern, maxbyte=0, path=downloads_path): # A list of Extentions, regex Pattern. maxbytes??
