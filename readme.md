@@ -28,6 +28,8 @@ check every <a> tag has a <span>[1] that contains myString. then prints the href
 
 Test regex: https://pythex.org/
 
+imdb python: https://www.geeksforgeeks.org/python-imdbpy-searching-a-movie/
+
 ### TODO
 
 **Downloader:**
