@@ -1,8 +1,9 @@
+from genericpath import exists
 import os
 import re # regular expressions
+import shutil
 from os.path import isfile, join
 from pathlib import Path
-
 
 
 # TODO
@@ -26,7 +27,9 @@ series_path = video_path + "\\" + "Series"
 
 
 # Regular Expressions (RE) Patterns
+# (Season|season|SEASON).(\d\d|\d)
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
+serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
 movie_pattern = re.compile(".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*")
 
 
@@ -37,6 +40,7 @@ def formatName(name):
     formattedName = formattedName.replace("   ", " ")
     formattedName = formattedName.replace("  ", " ")
     formattedName = formattedName.replace("-", " ")
+    formattedName = formattedName.strip()
     formattedName = formattedName.title()
     return formattedName
 
@@ -46,23 +50,39 @@ def makeDir(folderpath):
         os.makedirs(folderpath)
 
 
+def getFileExtention(filename):
+    emptyVar, file_extention = os.path.splitext(filename)
+    return file_extention
+
 # Check if Series
 def series():
     for i in os.listdir(downloads_path):
         if i.endswith(tuple(video_ext)):
             if os.path.getsize(downloads_path + "\\" + i) < 400000000: # If its bigger than about 400mb, maybe will remove this later.
                 if serie_pattern.match(i):
-                    print("Serie: "+i)
                     serieSplit = re.split("((s|S)+[0-9]{2}(e|E)+[0-9]{2})", i, maxsplit=1)
-                    print(formatName(serieSplit[0]))
+                    print(formatName(serieSplit[0]).lower())
+                    print(i)
                     makeDir(series_path)
                     makeDir(series_path + "\\" + formatName(serieSplit[0]))
-                    tempvar = re.search("((s|S)+[0-9]{2})", i)[0]
-                    tempvar = tempvar.replace("s", "")
-                    tempvar = tempvar.replace("S", "")
-                    if tempvar[0] == "0":
-                        tempvar = tempvar[1:]
-                    print(tempvar)
+                    serieSeason = re.search("((s|S)+[0-9]{2})", i)[0]
+                    serieSeason = serieSeason.replace("s", "")
+                    serieSeason = serieSeason.replace("S", "")
+                    if serieSeason[0] == "0":
+                        serieSeason = serieSeason[1:]
+                    makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
+                    print(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
+                    print(formatName(serieSplit[0]) + " " + serieSplit[1].lower())
+                    print(getFileExtention(i))
+                    serie_season_path = series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason
+                    
+                    #shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + formatName(serieSplit[0]) + " " + serieSplit[1].lower() + getFileExtention(i))
+
+                    #f = open(serie_season_path + "\\" + "Old-Filename.txt", "w")
+                    #f.write(i + "\n") # To log the old name, if needed later.
+
+                            #if not exists(serie_season_path + "\\" + "Old.Filename.txt"):
+
 
 
 def sorterThis(ext, pattern, maxbyte=0, path=downloads_path): # A list of Extentions, regex Pattern. maxbytes??
@@ -73,9 +93,4 @@ def sorterThis(ext, pattern, maxbyte=0, path=downloads_path): # A list of Extent
                 print(maxbyte)
 
 
-""" sorterThis(video_ext, serie_pattern)
-sorterThis(video_ext, movie_pattern) """
-
-
 series()
-print(series_path)
