@@ -30,6 +30,20 @@ Test regex: https://pythex.org/
 
 imdb python: https://www.geeksforgeeks.org/python-imdbpy-searching-a-movie/
 
+opensub api?: https://github.com/agonzalezro/python-opensubtitles
+
+**Subtitles Websites**
+1. https://yifysubtitles.org/
+1. https://www.opensubtitles.org/
+1. subscene.com
+
+Jellyfin Plugin: https://github.com/jellyfin/jellyfin-plugin-opensubtitles
+
+https://github.com/sameera-madushan/SubtitleBOX
+https://github.com/agonzalezro/python-opensubtitles
+https://github.com/manojmj92/subtitle-downloader
+
+
 ### TODO
 
 **Downloader:**
