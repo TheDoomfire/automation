@@ -31,13 +31,15 @@ reports_path = books_path + "\\" + "Company Reports"
 
 # Regular Expressions (RE) Patterns
 # (Season|season|SEASON).(\d\d|\d)
+year_pattern = "((18|19|20|21)[0-9]{2})"
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
 serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
-movie_pattern = re.compile(".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*")
+
 report_patterns = [".*(arsredovisning|Arsredovisning|ARSREDOVISNING).*((18|19|20|21)[0-9]{2}).*",
 "(annualreport|Annualreport|ANNUALREPORT).*((18|19|20|21)[0-9]{2})"]
 report_pattern = "(" + ")|(".join(report_patterns) + ")"
 
+#movie_pattern = re.compile(".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*")
 movie_patterns = [".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*"]
 movie_pattern = "(" + ")|(".join(movie_patterns) + ")"
 
@@ -118,4 +120,4 @@ def annualreports():
 
 movieSorter()
 #series()
-#annualreports()
+annualreports()
