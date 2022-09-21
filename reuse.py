@@ -37,6 +37,8 @@ def formatName(name):
     formattedName = formattedName.replace("  ", " ")
     formattedName = formattedName.replace("-", " ")
     formattedName = formattedName.replace("_", " ")
+    formattedName = formattedName.replace("(", "")
+    formattedName = formattedName.replace("!", "")
     formattedName = formattedName.strip()
     formattedName = formattedName.title() # Maakes every word strt with a big letter.
     return formattedName

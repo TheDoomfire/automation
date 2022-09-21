@@ -20,18 +20,25 @@ text_ext = [".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"]
 
 # Folder to find files from.
 #downloads_path = str(Path.home() / "Downloads")
-downloads_path = str(Path.home() / "Downloads" / "Chrome")
+
+# Use this instead of harddrive if u want.
+# Path.home()
+harddrive = "D:\\"
+downloads_path = harddrive + "Downloads" + "\\" + "2 - Torrents"
+
+
+""" downloads_path = str(harddrive / "Downloads" / "2 - Torrents")
 video_path = str(Path.home() / "Videos")
 series_path = video_path + "\\" + "Series"
 books_path = str(Path.home() / "Dokument")
-reports_path = books_path + "\\" + "Company Reports"
+reports_path = books_path + "\\" + "Company Reports" """
 # os.listdir(downloads_path)
 # os.path.isdir(path) # Check if its a folder or file.
 
 
 # Regular Expressions (RE) Patterns
 # (Season|season|SEASON).(\d\d|\d)
-year_pattern = "((18|19|20|21)[0-9]{2})"
+year_pattern = re.compile("((18|19|20|21)[0-9]{2})")
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
 serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
 
@@ -93,6 +100,8 @@ def series():
 def movieSorter():
     for i in os.listdir(downloads_path):
         if i.endswith(tuple(video_ext)) and re.match(movie_pattern, i):
+            print(0)
+        elif re.match(year_pattern, i):
             print(i)
 
 # Trying to make a standard for every file.
@@ -120,4 +129,4 @@ def annualreports():
 
 movieSorter()
 #series()
-annualreports()
+#annualreports()W
