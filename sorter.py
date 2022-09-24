@@ -1,4 +1,4 @@
-from genericpath import exists
+from genericpath import exists, isdir
 import os
 import re # regular expressions
 import shutil
@@ -25,6 +25,10 @@ text_ext = [".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"]
 # Path.home()
 harddrive = "D:\\"
 downloads_path = harddrive + "Downloads" + "\\" + "2 - Torrents"
+video_path = harddrive + "Videos"
+series_path = video_path + "\\" + "Series"
+books_path = harddrive + "Dokument"
+reports_path = books_path + "\\" + "Company Reports"
 
 
 """ downloads_path = str(harddrive / "Downloads" / "2 - Torrents")
@@ -42,6 +46,8 @@ year_pattern = re.compile("((18|19|20|21)[0-9]{2})")
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
 serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
 
+website_pattern = re.compile("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})")
+
 report_patterns = [".*(arsredovisning|Arsredovisning|ARSREDOVISNING).*((18|19|20|21)[0-9]{2}).*",
 "(annualreport|Annualreport|ANNUALREPORT).*((18|19|20|21)[0-9]{2})"]
 report_pattern = "(" + ")|(".join(report_patterns) + ")"
@@ -52,6 +58,8 @@ movie_pattern = "(" + ")|(".join(movie_patterns) + ")"
 
 
 def formatName(name):
+    if website_pattern.match(name):
+        name = re.sub(website_pattern, "", name)
     formattedName = name.strip()
     formattedName = formattedName.replace(".", " ")
     formattedName = formattedName.replace("   ", " ")
@@ -77,24 +85,37 @@ def getFileExtention(filename):
 def series():
     for i in os.listdir(downloads_path):
         if i.endswith(tuple(video_ext)):
-            if os.path.getsize(downloads_path + "\\" + i) < 400000000: # If its bigger than about 400mb, maybe will remove this later.
+            if os.path.getsize(downloads_path + "\\" + i): #400000000: # If its bigger than about 400mb, maybe will remove this later.
                 if serie_pattern.match(i):
                     serieSplit = re.split("((s|S)+[0-9]{2}(e|E)+[0-9]{2})", i, maxsplit=1)
-                    makeDir(series_path)
-                    makeDir(series_path + "\\" + formatName(serieSplit[0]))
                     serieSeason = re.search("((s|S)+[0-9]{2})", i)[0]
                     serieSeason = serieSeason.replace("s", "")
                     serieSeason = serieSeason.replace("S", "")
                     if serieSeason[0] == "0":
                         serieSeason = serieSeason[1:]
-                    makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
-                    print(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
-                    print(formatName(serieSplit[0]) + " " + serieSplit[1].lower())
-                    print(getFileExtention(i))
                     serie_season_path = series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason
-                    
-                    print(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+                    print(i)
+                    #makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
                     #shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+
+
+def seriesSecond(mypath):
+    files = os.listdir(mypath)
+    for item in files:
+        if os.path.isdir(os.path.join(mypath, item)):
+            seriesSecond(os.path.join(mypath, item))
+        else:
+            if item.endswith(tuple(video_ext)):
+                print(os.path.join(mypath, item))
+
+
+# Same as seriesSecond
+def testDir(mypath):
+    #files = os.listdir(mypath)
+    for root,dirs,files in os.walk(mypath):
+        for file in files:
+            if file.endswith(tuple(video_ext)):
+                print(os.path.join(root,file))
 
 
 def movieSorter():
@@ -103,6 +124,7 @@ def movieSorter():
             print(0)
         elif re.match(year_pattern, i):
             print(i)
+
 
 # Trying to make a standard for every file.
 def sorterThis(ext, pattern, maxbyte=0, path=downloads_path): # A list of Extentions, regex Pattern. maxbytes??
@@ -127,6 +149,8 @@ def annualreports():
                 print(newPath)
 
 
-movieSorter()
-#series()
-#annualreports()W
+""" movieSorter()
+series()
+annualreports() """
+#seriesSecond(downloads_path)
+testDir(downloads_path)
