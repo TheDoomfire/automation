@@ -45,6 +45,9 @@ reports_path = books_path + "\\" + "Company Reports" """
 year_pattern = re.compile("((18|19|20|21)[0-9]{2})")
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
 serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
+main_serie_patterns = [".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*", ".*(Season|season|SEASON).(\d\d|\d).*"]
+main_serie_pattern = "(" + ")|(".join(main_serie_patterns) + ")"
+
 
 website_pattern = re.compile("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})")
 
@@ -56,19 +59,52 @@ report_pattern = "(" + ")|(".join(report_patterns) + ")"
 movie_patterns = [".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*"]
 movie_pattern = "(" + ")|(".join(movie_patterns) + ")"
 
+split_movie_patterns = ["(480|720|1080|2160)", "((18|19|20|21)[0-9]{2})"]
+split_movie_pattern = "(" + ")|(".join(split_movie_patterns) + ")"
+
+pixel_pattern = re.compile("(480|720|1080|2160)")
+
+
+def checkIfWebsite(x):
+    if website_pattern.match(x):
+        x = re.sub(website_pattern, "", x)
+    return x
+
 
 def formatName(name):
     if website_pattern.match(name):
         name = re.sub(website_pattern, "", name)
     formattedName = name.strip()
     formattedName = formattedName.replace(".", " ")
-    formattedName = formattedName.replace("   ", " ")
-    formattedName = formattedName.replace("  ", " ")
     formattedName = formattedName.replace("-", " ")
     formattedName = formattedName.replace("_", " ")
+    formattedName = formattedName.replace("(", " ")
     formattedName = formattedName.strip()
-    formattedName = formattedName.title() # Maakes every word strt with a big letter.
+    formattedName = re.sub(" +", " ", formattedName) # Regex remove ALL double or more whitespace.
+    formattedName = formattedName.title() # Makes every word start with a big letter.
     return formattedName
+
+
+# Not Done
+def formatFileName(name):
+    name = checkIfWebsite(name)
+    year = re.findall(year_pattern, name)
+    year = year[0][0]
+    pixel = re.findall(pixel_pattern, name)
+    pixel = pixel[0]
+    if re.match(movie_pattern, name) and not re.match(main_serie_pattern, name):
+        nameSplit = re.split(split_movie_pattern, name, maxsplit=1)
+        name = nameSplit[0]
+    if year and pixel:
+        name = formatName(name) + " " + "(" + year + ")" + " " + "[" + pixel + "]"
+
+    return name
+
+# def replacePath(thePath, newPath):
+def replacePath(thePath):
+    tempVar = re.split("Torrents", thePath) # (\\), want it to split by \. And check for LAST occurence.
+    tempVar = tempVar[-1]
+    return tempVar
 
 
 def makeDir(folderpath):
@@ -94,9 +130,10 @@ def series():
                     if serieSeason[0] == "0":
                         serieSeason = serieSeason[1:]
                     serie_season_path = series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason
-                    print(i)
-                    #makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
-                    #shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+                    makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
+                    shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+"""                     print(i)
+                    print(serie_season_path) """
 
 
 def seriesSecond(mypath):
@@ -109,13 +146,16 @@ def seriesSecond(mypath):
                 print(os.path.join(mypath, item))
 
 
-# Same as seriesSecond
+# Remove folder path, replace with new.
 def testDir(mypath):
     #files = os.listdir(mypath)
     for root,dirs,files in os.walk(mypath):
         for file in files:
-            if file.endswith(tuple(video_ext)):
+            if file.endswith(tuple(video_ext)) and re.match(movie_pattern, file) and not re.match(main_serie_pattern, file):
+                print(formatFileName(file))
                 print(os.path.join(root,file))
+                print(file)
+                print("Replaced: ", replacePath(root))
 
 
 def movieSorter():
@@ -153,4 +193,6 @@ def annualreports():
 series()
 annualreports() """
 #seriesSecond(downloads_path)
+#series()
+
 testDir(downloads_path)
