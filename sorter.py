@@ -4,6 +4,8 @@ import re # regular expressions
 import shutil
 from os.path import isfile, join
 from pathlib import Path
+import glob
+from reuse import clearCompletedTorrents
 
 
 # TODO
@@ -26,7 +28,8 @@ text_ext = [".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"]
 harddrive = "D:\\"
 downloads_path = harddrive + "Downloads" + "\\" + "2 - Torrents"
 video_path = harddrive + "Videos"
-series_path = video_path + "\\" + "Series"
+movie_video_path = video_path + "\\" + "Movies" + "\\"
+series_path = video_path + "\\" + "Series" + "\\"
 books_path = harddrive + "Dokument"
 reports_path = books_path + "\\" + "Company Reports"
 
@@ -97,14 +100,17 @@ def formatFileName(name):
         name = nameSplit[0]
     if year and pixel:
         name = formatName(name) + " " + "(" + year + ")" + " " + "[" + pixel + "]"
-
     return name
 
-# def replacePath(thePath, newPath):
-def replacePath(thePath):
-    tempVar = re.split("Torrents", thePath) # (\\), want it to split by \. And check for LAST occurence.
-    tempVar = tempVar[-1]
+
+def justPath(thePath):
+    tempVar = thePath.rsplit("\\", 1)
+    tempVar = tempVar[0] + "\\"
     return tempVar
+
+def getFolderName(thePath):
+    thePath = thePath.rsplit("\\", 1)
+    return thePath[1]
 
 
 def makeDir(folderpath):
@@ -115,6 +121,16 @@ def makeDir(folderpath):
 def getFileExtention(filename):
     emptyVar, file_extention = os.path.splitext(filename)
     return file_extention
+
+
+def removeFolder(thePath):
+    allFilesInFolder = thePath + "*"
+    contentOfFolder = glob.glob(allFilesInFolder)
+    for f in contentOfFolder:
+        print(f)
+        #os.remove(f)
+    #os.remove(thePath)
+    print(allFilesInFolder)
 
 
 # Check if Series
@@ -146,26 +162,6 @@ def seriesSecond(mypath):
                 print(os.path.join(mypath, item))
 
 
-# Remove folder path, replace with new.
-def testDir(mypath):
-    #files = os.listdir(mypath)
-    for root,dirs,files in os.walk(mypath):
-        for file in files:
-            if file.endswith(tuple(video_ext)) and re.match(movie_pattern, file) and not re.match(main_serie_pattern, file):
-                print(formatFileName(file))
-                print(os.path.join(root,file))
-                print(file)
-                print("Replaced: ", replacePath(root))
-
-
-def movieSorter():
-    for i in os.listdir(downloads_path):
-        if i.endswith(tuple(video_ext)) and re.match(movie_pattern, i):
-            print(0)
-        elif re.match(year_pattern, i):
-            print(i)
-
-
 # Trying to make a standard for every file.
 def sorterThis(ext, pattern, maxbyte=0, path=downloads_path): # A list of Extentions, regex Pattern. maxbytes??
     for i in os.listdir(path):
@@ -195,4 +191,63 @@ annualreports() """
 #seriesSecond(downloads_path)
 #series()
 
-testDir(downloads_path)
+
+def old():
+    for i in os.listdir(downloads_path):
+        if i.endswith(tuple(video_ext)) and re.match(movie_pattern, i):
+            print(0)
+        elif re.match(year_pattern, i):
+            print(i)
+
+
+# Bullet.Train.1080p.WEB-DL.DDP5.1.H.264-EVO[TGx]
+# Dosent get moved!!!
+def movieSorter(mypath):
+    #files = os.listdir(mypath)
+    hej = 1
+    for root,dirs,files in os.walk(mypath):
+        for file in files:
+            if file.endswith(tuple(video_ext)) and re.match(movie_pattern, file) and not re.match(main_serie_pattern, file) and not hej == 2:
+                if os.path.exists(movie_video_path + getFolderName(root)):
+                    print("It already exists: ", movie_video_path + getFolderName(root))
+                    print("Delete This: ", root + "\\")
+                    #shutil.rmtree(root)
+                else:
+                    if mypath == root: # If its a file
+                        newDestination = movie_video_path + formatFileName(file) + "\\"
+                        oldDestination = root + "\\" + file
+                        makeDir(newDestination)
+                        shutil.move(oldDestination, newDestination)
+                        print("File, Old: ", oldDestination) # TEMPORARLY
+                        print("File, New: ",newDestination) # TEMPORARLY
+                    else: # If its not a file
+                        shutil.move(root, movie_video_path)
+                        os.rename(movie_video_path + getFolderName(root), movie_video_path + formatFileName(file))
+                        print("Folder, Old: ", root) # TEMPORARLY
+                        print("Folder, New: ", movie_video_path + formatFileName(file)) # TEMPORARLY
+
+
+def testSeries(myPath):
+    for root,dirs, files in os.walk(myPath):
+        for f in files:
+            if f.endswith(tuple(video_ext)) and re.match(main_serie_pattern, f):
+                if os.path.exists(series_path + getFolderName(root)):
+                    print("Folder: ", root)
+                else: # if File
+                    if myPath == root: # If its a file
+                        print("Hej ",root)
+                        #shutil.move(root, series_path)
+                    else:
+                        print(root)
+
+
+"""         for i in os.listdir(mypath):
+            if i.endswith(tuple(video_ext)) and re.match(movie_pattern, i) and not re.match(main_serie_pattern, i):
+                print(0)
+            elif re.match(year_pattern, i):
+                print(i) """
+
+
+clearCompletedTorrents()
+#movieSorter(downloads_path)
+testSeries(downloads_path)
