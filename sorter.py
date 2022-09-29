@@ -51,6 +51,9 @@ serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
 main_serie_patterns = [".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*", ".*(Season|season|SEASON).(\d\d|\d).*"]
 main_serie_pattern = "(" + ")|(".join(main_serie_patterns) + ")"
 
+episode_serie_patterns = ["((s|S)+[0-9]{2}(e|E)+[0-9]{2})", "((Season|season|SEASON).(\d\d|\d))", "((s|S)+[0-9]{2})"]
+episode_serie_pattern = "(" + ")|(".join(episode_serie_patterns) + ")"
+
 
 website_pattern = re.compile("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})")
 
@@ -91,15 +94,37 @@ def formatName(name):
 # Not Done
 def formatFileName(name):
     name = checkIfWebsite(name)
-    year = re.findall(year_pattern, name)
-    year = year[0][0]
-    pixel = re.findall(pixel_pattern, name)
-    pixel = pixel[0]
+    if re.findall(year_pattern, name):
+        year = re.findall(year_pattern, name)
+        year = year[0][0]
+    else:
+        year = None
+
+    if re.findall(pixel_pattern, name):
+        pixel = re.findall(pixel_pattern, name)
+        pixel = pixel[0]
+    else:
+        pixel = None
+
+    if re.findall(episode_serie_pattern, name):
+        episode = re.findall(episode_serie_pattern, name)
+        episode = episode[0]
+        episode = list(filter(None, episode))
+    else:
+        episode = None
+
     if re.match(movie_pattern, name) and not re.match(main_serie_pattern, name):
         nameSplit = re.split(split_movie_pattern, name, maxsplit=1)
         name = nameSplit[0]
-    if year and pixel:
+
+    if re.match(main_serie_pattern, name): # NOT DONE
+        nameSplit = re.split(split_movie_pattern, name, maxsplit=1) # Not Done
+
+    if not year == None and not pixel == None:
         name = formatName(name) + " " + "(" + year + ")" + " " + "[" + pixel + "]"
+
+    if not episode == None:
+        name = episode
     return name
 
 
@@ -123,7 +148,7 @@ def getFileExtention(filename):
     return file_extention
 
 
-def removeFolder(thePath):
+""" def removeFolder(thePath):
     allFilesInFolder = thePath + "*"
     contentOfFolder = glob.glob(allFilesInFolder)
     for f in contentOfFolder:
@@ -131,7 +156,7 @@ def removeFolder(thePath):
         #os.remove(f)
     #os.remove(thePath)
     print(allFilesInFolder)
-
+ """
 
 # Check if Series
 def series():
@@ -232,13 +257,15 @@ def testSeries(myPath):
         for f in files:
             if f.endswith(tuple(video_ext)) and re.match(main_serie_pattern, f):
                 if os.path.exists(series_path + getFolderName(root)):
-                    print("Folder: ", root)
+                    print("Already Exists: ", series_path + getFolderName(root))
+                    # If it already exists where I want to move it.
                 else: # if File
                     if myPath == root: # If its a file
                         print("Hej ",root)
                         #shutil.move(root, series_path)
                     else:
-                        print(root)
+                        print(f)
+                        print(formatFileName(getFolderName(root)))
 
 
 """         for i in os.listdir(mypath):
