@@ -82,6 +82,11 @@ def checkIfWebsite(x):
 
 def remove_empty_folders(path_abs):
     os.rmdir(path_abs)
+    for item in os.listdir(path_abs):
+        if os.path.isdir(item):
+            if not os.path.isdir(item):
+                print(os.path.join(path_abs, item))
+                # os.removedirs(os.path.join(path_abs, item))
 """     walk = list(os.walk(path_abs))
     for path, _, _ in walk[::-1]:
         if len(os.listdir(path)) == 0:
@@ -339,9 +344,9 @@ def testSeries(myPath):
                         print("To: ", newDestination)
                         isExists = os.path.exists(newDestination)
                         if not isExists: # Maybe should change this...
-                            for file in os.listdir(root):
+                            for file in os.listdir(root): # Dosent work if entire season is in the same folder.
                                 oldDestination = root + "\\" + file
-                                print("HEJ: ", oldDestination)
+                                # print("HEJ: ", oldDestination)
                                 shutil.move(oldDestination, newDestination)
                             #remove_empty_folders(root)
 
