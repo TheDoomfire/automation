@@ -18,6 +18,9 @@ video_ext = [".mp4", ".mkv", ".avi", ".webm", ".wmv", ".3g2", ".3gp", ".flv", ".
 audio_ext = [".aif", ".cda", ".mid", ".midi", ".mp3", ".mpa", ".ogg", ".wav", ".wma", ".wpl"]
 compressed_ext = [".7z", ".rar", ".arj", ".deb", ".pkg", ".rpm", ".tar.gz", ".z", ".zip"]
 text_ext = [".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"]
+switch_ext = [".nsp"]
+gamecube_ext = [".rvz", ".wbfs", ".ciso"]
+extracted_ext = [".7z", ".rar"]
 
 
 # Folder to find files from.
@@ -77,6 +80,40 @@ def checkIfWebsite(x):
     return x
 
 
+def remove_empty_folders(path_abs):
+    os.rmdir(path_abs)
+"""     walk = list(os.walk(path_abs))
+    for path, _, _ in walk[::-1]:
+        if len(os.listdir(path)) == 0:
+            os.remove(path) """
+
+
+# Get serie season then make it to a path.
+def getSeriePath(i):
+    serieSplit = re.split("((s|S)+[0-9]{2}(e|E)+[0-9]{2})", i, maxsplit=1)
+    serieSeason = re.search("((s|S)+[0-9]{2})", i)[0]
+    serieSeason = serieSeason.replace("s", "")
+    serieSeason = serieSeason.replace("S", "")
+    if serieSeason[0] == "0":
+        serieSeason = serieSeason[1:]
+    serie_season_path = series_path + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason + "\\" 
+    return serie_season_path
+    #makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
+    #shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+
+# NOT DONE, MAY DELETE
+def formatSeriePath(i):
+    serieSplit = re.split("((s|S)+[0-9]{2}(e|E)+[0-9]{2})", i, maxsplit=1)
+    serieSeason = re.search("((s|S)+[0-9]{2})", i)[0]
+    serieSeason = serieSeason.replace("s", "")
+    serieSeason = serieSeason.replace("S", "")
+    if serieSeason[0] == "0":
+        serieSeason = serieSeason[1:]
+    serie_season_path = series_path + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason + "\\" 
+    return serie_season_path
+
+
+
 def formatName(name):
     if website_pattern.match(name):
         name = re.sub(website_pattern, "", name)
@@ -110,21 +147,53 @@ def formatFileName(name):
         episode = re.findall(episode_serie_pattern, name)
         episode = episode[0]
         episode = list(filter(None, episode))
+        episode = episode[0]
     else:
         episode = None
 
     if re.match(movie_pattern, name) and not re.match(main_serie_pattern, name):
+        isMovie = True
         nameSplit = re.split(split_movie_pattern, name, maxsplit=1)
         name = nameSplit[0]
+    else:
+        isMovie = False
 
-    if re.match(main_serie_pattern, name): # NOT DONE
-        nameSplit = re.split(split_movie_pattern, name, maxsplit=1) # Not Done
+    if re.match(main_serie_pattern, name) and not re.match(movie_pattern, name):
+        isSerie = True
+        nameSplit = re.split(episode_serie_pattern, name, maxsplit=1)
+        name = nameSplit[0]
+    else:
+        isSerie = False
 
-    if not year == None and not pixel == None:
+    if not year == None and not pixel == None and isMovie == True:
         name = formatName(name) + " " + "(" + year + ")" + " " + "[" + pixel + "]"
 
-    if not episode == None:
-        name = episode
+
+    if isSerie == True and not pixel == None:
+        name = formatName(name) + " " + episode.upper() + " " + "[" + pixel + "]"
+    elif isSerie == True and pixel == None:
+        name = formatName(name) + " " + episode.upper()
+
+    #if not episode == None:
+    #    name = episode
+    return name
+
+
+# Delete?
+def formatSerieName(name):
+    name = checkIfWebsite(name)
+    if re.findall(year_pattern, name):
+        year = re.findall(year_pattern, name)
+        year = year[0][0]
+    else:
+        year = None
+
+    if re.findall(pixel_pattern, name): # 720, 1080p etc.
+        pixel = re.findall(pixel_pattern, name)
+        pixel = pixel[0]
+    else:
+        pixel = None
+
     return name
 
 
@@ -261,11 +330,20 @@ def testSeries(myPath):
                     # If it already exists where I want to move it.
                 else: # if File
                     if myPath == root: # If its a file
-                        print("Hej ",root)
-                        #shutil.move(root, series_path)
-                    else:
-                        print(f)
-                        print(formatFileName(getFolderName(root)))
+                        print("Hej ", root)
+                        # shutil.move(root, series_path)
+                    else: # if inside a folder.
+                        newDestination = getSeriePath(f) + formatFileName(f)
+                        makeDir(newDestination)
+                        print("Moved: ", root)
+                        print("To: ", newDestination)
+                        isExists = os.path.exists(newDestination)
+                        if not isExists: # Maybe should change this...
+                            for file in os.listdir(root):
+                                oldDestination = root + "\\" + file
+                                print("HEJ: ", oldDestination)
+                                shutil.move(oldDestination, newDestination)
+                            #remove_empty_folders(root)
 
 
 """         for i in os.listdir(mypath):
@@ -274,7 +352,16 @@ def testSeries(myPath):
             elif re.match(year_pattern, i):
                 print(i) """
 
-
-clearCompletedTorrents()
-#movieSorter(downloads_path)
+# ModuleNotFoundError: No module named 'psutil'
+# clearCompletedTorrents()
+# movieSorter(downloads_path)
+print("Running Python...")
 testSeries(downloads_path)
+# series()
+
+
+print("Its Done.")
+# TODO
+# Sort series inside folders.
+
+# NEED TO REMOVE ALL EMPTY FOLDERS

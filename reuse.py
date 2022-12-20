@@ -1,5 +1,5 @@
-import psutil
-from qbittorrent import Client
+# import psutil # Get an error. ModuleNotFoundError: No module named 'psutil'
+# from qbittorrent import Client # Error: Requirement already satisfied: qbittorrent
 
 
 
