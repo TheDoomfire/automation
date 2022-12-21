@@ -3,6 +3,7 @@ import os
 import re # regular expressions
 import shutil
 from os.path import isfile, join
+import os.path
 from pathlib import Path
 import glob
 from reuse import clearCompletedTorrents
@@ -81,12 +82,20 @@ def checkIfWebsite(x):
 
 
 def remove_empty_folders(path_abs):
-    os.rmdir(path_abs)
+    #os.rmdir(path_abs)
+    print("Running empty folders")
+    #print(path_abs)
+    #print(os.listdir(path_abs))
     for item in os.listdir(path_abs):
-        if os.path.isdir(item):
-            if not os.path.isdir(item):
-                print(os.path.join(path_abs, item))
-                # os.removedirs(os.path.join(path_abs, item))
+        #print(item)
+        the_path = path_abs + "\\" + item
+        #print(os.path.isdir(the_path))
+        if os.path.isdir(the_path):
+            #print(the_path)
+            #print(os.path.isdir(the_path))
+            if not os.listdir(the_path): # IF folder is EMPTY!
+                #print(os.path.join(path_abs, item))
+                os.removedirs(os.path.join(path_abs, item))
 """     walk = list(os.walk(path_abs))
     for path, _, _ in walk[::-1]:
         if len(os.listdir(path)) == 0:
@@ -328,6 +337,7 @@ def movieSorter(mypath):
 
 def testSeries(myPath):
     for root,dirs, files in os.walk(myPath):
+        #print(dirs)
         for f in files:
             if f.endswith(tuple(video_ext)) and re.match(main_serie_pattern, f):
                 if os.path.exists(series_path + getFolderName(root)):
@@ -349,6 +359,18 @@ def testSeries(myPath):
                                 # print("HEJ: ", oldDestination)
                                 shutil.move(oldDestination, newDestination)
                             #remove_empty_folders(root)
+        for folder in dirs: # Need to make it look inside of folders.
+            folder = myPath  + "\\" + folder
+            #folder = os.path.join(myPath, folder)
+            print(folder) # Dosent add subfolders on nested folders.
+            # Error seems to skip looking at underlying
+            for i in os.listdir(folder): # Get error: FileNotFoundError: [WinError 3] The system cannot find the path specified: 'D:\\Downloads\\2 - Torrents\\Nathan for You S00 Nathan on Your Side (240p re-tvrip)'
+                file = os.path.join(folder, i)
+                if os.path.isfile(file): # ERROR: FileNotFoundError on directories!
+                    print("ITEM: ", file)
+"""                 elif os.path.isdir(folder):
+                    print("DIR: ", file) """
+            #for item in :
 
 
 """         for i in os.listdir(mypath):
@@ -359,11 +381,11 @@ def testSeries(myPath):
 
 # ModuleNotFoundError: No module named 'psutil'
 # clearCompletedTorrents()
-# movieSorter(downloads_path)
+movieSorter(downloads_path)
 print("Running Python...")
 testSeries(downloads_path)
-# series()
-
+#series()
+remove_empty_folders(downloads_path)
 
 print("Its Done.")
 # TODO
