@@ -359,15 +359,28 @@ def testSeries(myPath):
                                 # print("HEJ: ", oldDestination)
                                 shutil.move(oldDestination, newDestination)
                             #remove_empty_folders(root)
-        for folder in dirs: # Need to make it look inside of folders.
-            folder = myPath  + "\\" + folder
-            #folder = os.path.join(myPath, folder)
-            print(folder) # Dosent add subfolders on nested folders.
-            # Error seems to skip looking at underlying
-            for i in os.listdir(folder): # Get error: FileNotFoundError: [WinError 3] The system cannot find the path specified: 'D:\\Downloads\\2 - Torrents\\Nathan for You S00 Nathan on Your Side (240p re-tvrip)'
-                file = os.path.join(folder, i)
-                if os.path.isfile(file): # ERROR: FileNotFoundError on directories!
-                    print("ITEM: ", file)
+        try:
+            for folder in dirs: # Need to make it look inside of folders.
+                folder = myPath  + "\\" + folder
+                #folder = os.path.join(myPath, folder)
+                print(folder) # Dosent add subfolders on nested folders.
+                # Error seems to skip looking at underlying
+                for i in os.listdir(folder): # Get error: FileNotFoundError: [WinError 3] The system cannot find the path specified: 'D:\\Downloads\\2 - Torrents\\Nathan for You S00 Nathan on Your Side (240p re-tvrip)'
+                    file = os.path.join(folder, i)
+                    if os.path.isfile(file): # IF its a file. # ERROR: FileNotFoundError on directories!
+                        print("ITEM: ", file)
+                        # Not tried this code yet
+                        newDestination = folder + formatFileName(file)
+                        makeDir("New Destination: ", newDestination)
+                        print(newDestination)
+                        print("Moved: ", root)
+                        print("To: ", newDestination)
+                        #isExists = os.path.exists(newDestination)
+        except:
+            print("Error! Couldnt find a directory in dirs")
+            hej = 1
+
+
 """                 elif os.path.isdir(folder):
                     print("DIR: ", file) """
             #for item in :
