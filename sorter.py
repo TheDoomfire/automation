@@ -24,6 +24,7 @@ switch_ext = [".nsp"]
 # And wii
 gamecube_ext = [".rvz", ".wbfs", ".ciso"]
 extracted_ext = [".7z", ".rar", ".zip"]
+nitendo_sixtyfour_ext = [".z64"]
 
 
 # Folder to find files from.
@@ -40,6 +41,8 @@ books_path = harddrive + "Dokument"
 reports_path = books_path + "\\" + "Company Reports"
 game_path = harddrive + "Installed" + "\\" + "Installation Files" + "\\"
 gamecube_path = game_path + "Gamecube" + "\\"
+nitendo_sixtyfour_path = game_path + "Nitendo64" + "\\"
+switch_path = game_path + "Switch" + "\\"
 
 
 """ downloads_path = str(harddrive / "Downloads" / "2 - Torrents")
@@ -370,27 +373,47 @@ def gameSorter(mypath): # NOT DONE!!
     hej = 1 # If I want to loop.
     for root,dirs,files in os.walk(mypath):
         for file in files:
+            oldDestination = root + "\\" + file
             if file.endswith(tuple(gamecube_ext)):
-                        oldDestination = root + "\\" + file
-                        shutil.move(oldDestination, gamecube_path)
-                        print("File, Old: ", oldDestination) # TEMPORARLY
-                        print("File, New: ", gamecube_path) # TEMPORARLY
+                shutil.move(oldDestination, gamecube_path)
+                print("File, Old: ", oldDestination) # TEMPORARLY
+                print("File, New: ", gamecube_path) # TEMPORARLY
             elif file.endswith(tuple(switch_ext)):
                 print("Switch Game: ", file)
+                try:
+                    shutil.move(oldDestination, switch_path)
+                except:
+                    print(file, " Already exists in ", switch_path)
+            elif file.endswith(tuple(nitendo_sixtyfour_ext)):
+                print("Nitendo 64: ", file)
+                try:
+                    shutil.move(oldDestination, nitendo_sixtyfour_path)
+                except:
+                    print(file, " Already exists in ", nitendo_sixtyfour_path)
 
 
+# TODO
+# If more than 20files DONT extract!
 def extractFiles(mypath):
     for root,dirs,files in os.walk(mypath):
         for file in files:
-            if file.endswith(tuple(extracted_ext)):
-                thePath = root + "\\" + file
+            thePath = root + "\\" + file
+            isExtracted = False
+            theFolder = mypath + "\\" + "extracted_files"
+            makeDir(theFolder)
+            if file.endswith(tuple(".zip")):
+                print(file)
                 print(thePath)
-                with zipfile.ZipFile(file, "r") as zip: # Error??
-                    theFolder = root + "extracted_files"
-                    print(zip.namelist())
-"""                     zip.extractall(theFolder)
-                    print("Extracted.")
- """
+                try:
+                    with zipfile.ZipFile(thePath, "r") as zip: # Error??
+                        #print(zip.namelist())
+                        zip.extractall(theFolder)
+                        isExtracted = True
+                except:
+                    print(file, " is not a zipfile. I think")
+            if isExtracted == True:
+                os.remove(thePath)
+
                     
                         # isExists = os.path.exists(newDestination)
 """                         if not isExists: # Maybe should change this...
@@ -445,18 +468,18 @@ def runAllSorters(the_path):
 
 print("Running Python...")
 # Order matters!! I think...
-testSeries(downloads_path) # Should be before Movies.
-movieSorter(downloads_path)
 
-gameSorter(downloads_path) # NOT DONE!
-
-extractFiles(downloads_path)
+runAllSorters(downloads_path)
 
 # remove_empty_folders(downloads_path) # If a folder is empty, it gets deleted.
 
 
 
 # TODO
-# Sort series inside folders.
+# 
 
-# NEED TO REMOVE ALL EMPTY FOLDERS
+# --- Move this ---
+# Movies
+# Series
+# Entire serie folders
+# .srt (to movie, or serie)
