@@ -7,6 +7,7 @@ import os.path
 from pathlib import Path
 import glob
 from reuse import clearCompletedTorrents
+import zipfile
 
 
 # TODO
@@ -20,8 +21,9 @@ audio_ext = [".aif", ".cda", ".mid", ".midi", ".mp3", ".mpa", ".ogg", ".wav", ".
 compressed_ext = [".7z", ".rar", ".arj", ".deb", ".pkg", ".rpm", ".tar.gz", ".z", ".zip"]
 text_ext = [".doc", ".docx", ".odt", ".pdf", ".rtf", ".tex", ".txt", ".wpd"]
 switch_ext = [".nsp"]
+# And wii
 gamecube_ext = [".rvz", ".wbfs", ".ciso"]
-extracted_ext = [".7z", ".rar"]
+extracted_ext = [".7z", ".rar", ".zip"]
 
 
 # Folder to find files from.
@@ -36,6 +38,8 @@ movie_video_path = video_path + "\\" + "Movies" + "\\"
 series_path = video_path + "\\" + "Series" + "\\"
 books_path = harddrive + "Dokument"
 reports_path = books_path + "\\" + "Company Reports"
+game_path = harddrive + "Installed" + "\\" + "Installation Files" + "\\"
+gamecube_path = game_path + "Gamecube" + "\\"
 
 
 """ downloads_path = str(harddrive / "Downloads" / "2 - Torrents")
@@ -52,7 +56,7 @@ reports_path = books_path + "\\" + "Company Reports" """
 year_pattern = re.compile("((18|19|20|21)[0-9]{2})")
 serie_pattern = re.compile(".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*")
 serie_pattern_two = re.compile(".*(Season|season|SEASON).(\d\d|\d).*")
-main_serie_patterns = [".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*(480|720|1080|2160).*", ".*(Season|season|SEASON).(\d\d|\d).*"]
+main_serie_patterns = [".*((s|S)+[0-9]{2}(e|E)+[0-9]{2}).*", ".*(Season|season|SEASON).(\d\d|\d).*"] # (480|720|1080|2160).*
 main_serie_pattern = "(" + ")|(".join(main_serie_patterns) + ")"
 
 episode_serie_patterns = ["((s|S)+[0-9]{2}(e|E)+[0-9]{2})", "((Season|season|SEASON).(\d\d|\d))", "((s|S)+[0-9]{2})"]
@@ -66,7 +70,7 @@ report_patterns = [".*(arsredovisning|Arsredovisning|ARSREDOVISNING).*((18|19|20
 report_pattern = "(" + ")|(".join(report_patterns) + ")"
 
 #movie_pattern = re.compile(".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*")
-movie_patterns = [".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*"]
+movie_patterns = [".*((18|19|20|21)[0-9]{2}).*(480|720|1080|2160).*", ".*(18|19|20|21)[0-9]{2}.*", ".*(480|720|1080|2160)(p|P).*"]
 movie_pattern = "(" + ")|(".join(movie_patterns) + ")"
 
 split_movie_patterns = ["(480|720|1080|2160)", "((18|19|20|21)[0-9]{2})"]
@@ -242,7 +246,7 @@ def getFileExtention(filename):
  """
 
 # Check if Series
-def series():
+""" def series():
     for i in os.listdir(downloads_path):
         if i.endswith(tuple(video_ext)):
             if os.path.getsize(downloads_path + "\\" + i): #400000000: # If its bigger than about 400mb, maybe will remove this later.
@@ -255,7 +259,7 @@ def series():
                         serieSeason = serieSeason[1:]
                     serie_season_path = series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason
                     makeDir(series_path + "\\" + formatName(serieSplit[0]) + "\\" + "Season " + serieSeason)
-                    shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i)
+                    shutil.move(downloads_path + "\\" + i, serie_season_path + "\\" + i) """
 """                     print(i)
                     print(serie_season_path) """
 
@@ -312,7 +316,7 @@ def old():
 # Dosent get moved!!!
 def movieSorter(mypath):
     #files = os.listdir(mypath)
-    hej = 1
+    hej = 1 # If I want to loop.
     for root,dirs,files in os.walk(mypath):
         for file in files:
             if file.endswith(tuple(video_ext)) and re.match(movie_pattern, file) and not re.match(main_serie_pattern, file) and not hej == 2:
@@ -339,27 +343,63 @@ def testSeries(myPath):
     for root,dirs, files in os.walk(myPath):
         #print(dirs)
         for f in files:
-            if f.endswith(tuple(video_ext)) and re.match(main_serie_pattern, f):
+            if f.endswith(tuple(video_ext)) and re.match(main_serie_pattern, f): # serie_pattern main_serie_pattern
                 if os.path.exists(series_path + getFolderName(root)):
                     print("Already Exists: ", series_path + getFolderName(root))
+                    print("Delete This: ", root + "\\")
                     # If it already exists where I want to move it.
                 else: # if File
                     if myPath == root: # If its a file
+                        newDestination = series_path + formatFileName(f) + "\\"
                         print("Hej ", root)
+                        print("NEW DESTINATION: ", newDestination)
                         # shutil.move(root, series_path)
                     else: # if inside a folder.
-                        newDestination = getSeriePath(f) + formatFileName(f)
-                        makeDir(newDestination)
+                        #newDestination = getSeriePath(f) + formatFileName(f)
+                        #test = series_path + getFolderName(root), series_path + formatFileName(f)
+                        makeDir(getSeriePath(f))
                         print("Moved: ", root)
-                        print("To: ", newDestination)
-                        isExists = os.path.exists(newDestination)
-                        if not isExists: # Maybe should change this...
+                        print("To: ", getSeriePath(f))
+                        try:
+                            shutil.move(root, getSeriePath(f))
+                        except:
+                            print(getSeriePath(f), " Already exists" )
+            
+
+def gameSorter(mypath): # NOT DONE!!
+    hej = 1 # If I want to loop.
+    for root,dirs,files in os.walk(mypath):
+        for file in files:
+            if file.endswith(tuple(gamecube_ext)):
+                        oldDestination = root + "\\" + file
+                        shutil.move(oldDestination, gamecube_path)
+                        print("File, Old: ", oldDestination) # TEMPORARLY
+                        print("File, New: ", gamecube_path) # TEMPORARLY
+            elif file.endswith(tuple(switch_ext)):
+                print("Switch Game: ", file)
+
+
+def extractFiles(mypath):
+    for root,dirs,files in os.walk(mypath):
+        for file in files:
+            if file.endswith(tuple(extracted_ext)):
+                thePath = root + "\\" + file
+                print(thePath)
+                with zipfile.ZipFile(file, "r") as zip: # Error??
+                    theFolder = root + "extracted_files"
+                    print(zip.namelist())
+"""                     zip.extractall(theFolder)
+                    print("Extracted.")
+ """
+                    
+                        # isExists = os.path.exists(newDestination)
+"""                         if not isExists: # Maybe should change this...
                             for file in os.listdir(root): # Dosent work if entire season is in the same folder.
                                 oldDestination = root + "\\" + file
                                 # print("HEJ: ", oldDestination)
-                                shutil.move(oldDestination, newDestination)
+                                shutil.move(oldDestination, newDestination) """
                             #remove_empty_folders(root)
-        try:
+"""         try:
             for folder in dirs: # Need to make it look inside of folders.
                 folder = myPath  + "\\" + folder
                 #folder = os.path.join(myPath, folder)
@@ -377,8 +417,8 @@ def testSeries(myPath):
                         print("To: ", newDestination)
                         #isExists = os.path.exists(newDestination)
         except:
-            print("Error! Couldnt find a directory in dirs")
-            hej = 1
+            print("Error!", folder)
+            hej = 1 """
 
 
 """                 elif os.path.isdir(folder):
@@ -394,13 +434,28 @@ def testSeries(myPath):
 
 # ModuleNotFoundError: No module named 'psutil'
 # clearCompletedTorrents()
-movieSorter(downloads_path)
-print("Running Python...")
-testSeries(downloads_path)
-#series()
-remove_empty_folders(downloads_path)
 
-print("Its Done.")
+def runAllSorters(the_path):
+    # The Order Can Matter!
+    testSeries(the_path)
+    movieSorter(the_path)
+    gameSorter(the_path)
+    extractFiles(the_path)
+    remove_empty_folders(the_path)
+
+print("Running Python...")
+# Order matters!! I think...
+testSeries(downloads_path) # Should be before Movies.
+movieSorter(downloads_path)
+
+gameSorter(downloads_path) # NOT DONE!
+
+extractFiles(downloads_path)
+
+# remove_empty_folders(downloads_path) # If a folder is empty, it gets deleted.
+
+
+
 # TODO
 # Sort series inside folders.
 
