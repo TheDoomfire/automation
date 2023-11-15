@@ -1,7 +1,11 @@
 import json
 
-file_path = 'nounlist.txt'
-output_path = 'nounlist.json'
+# Edit this
+file_path = 'DaleChallEasyWordList.txt'
+
+
+file_name = file_path.rsplit('.', 1)
+output_path = file_name[0] + ".json"
 
 with open(file_path, 'r') as file:
     content = file.read()
